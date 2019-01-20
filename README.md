@@ -381,17 +381,21 @@ class Kernel extends ConsoleKernel
 ```sql
 SELECT * FROM performance_schema.replication_group_members;
 ```
+![MySQL Cluster](img/sqlcluster.png)
 - Test Redis Cluster pada **_redis1, redis2, atau redis3_** lakukan **_redis-cli_**
 ```redis
 info replication
 ```
+![Redis Cluster](img/rediscluster.png)
 - Test cache pada Redis coba reload page /cargo/arrival lalu lihat pada console API
+![Redis Cache](img/cacheredis.png)
 ---
 ### 6. Jmeter
 - Load test cache yang dilakukan adalah cache ketika mencari rekap cargo berdasarkan tanggal
 - Pengujian dilakukan dengan menggunakan PC lain pada satu network lokal
 
 ![Uji jmeter](img/Capture.PNG)
+[a relative link](jmeter/dengan_cache_date.csv)
 ---
 ### 7. Referensi
 - https://www.linode.com/docs/applications/big-data/how-to-install-and-configure-a-redis-cluster-on-ubuntu-1604/
