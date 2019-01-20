@@ -11,8 +11,7 @@
 |5|Aplikasi| Laravel 5.6| - | - |
 |6|API|Ubuntu 16.04|-|-|
 
-![Architecture](img/Architecture.PNG)
-
+![Desain Arsitektur](img/Architecture.png)
 ---
 ### 2. MySQL Cluster
 Setelah **_vagrant up_**, ssh ke proxy lalu
