@@ -11,7 +11,7 @@
 |5|Aplikasi| Laravel 5.6| - | - |
 |6|API|Ubuntu 16.04|-|-|
 
-![Arsitektur](img/Architecture.PNG)
+![Architecture](img/Architecture.PNG)
 
 ---
 ### 2. MySQL Cluster
