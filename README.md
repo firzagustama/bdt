@@ -48,184 +48,350 @@ $ redis-cli --cluster add-node 192.168.33.22:6379 192.168.33.21:6379 --cluster-s
 ```sh
 $ redis-cli --cluster add-node 192.168.33.23:6380 192.168.33.22:6380 --cluster-slave
 ```
-# Dillinger
-
-[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
-
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-
-Dillinger is a cloud-enabled, mobile-ready, offline-storage, AngularJS powered HTML5 Markdown editor.
-
-  - Type some Markdown on the left
-  - See HTML in the right
-  - Magic
-
-# New Features!
-
-  - Import a HTML file and watch it magically convert to Markdown
-  - Drag and drop images (requires your Dropbox account be linked)
-
-
-You can also:
-  - Import and save files from GitHub, Dropbox, Google Drive and One Drive
-  - Drag and drop markdown and HTML files into Dillinger
-  - Export documents as Markdown, HTML and PDF
-
-Markdown is a lightweight markup language based on the formatting conventions that people naturally use in email.  As [John Gruber] writes on the [Markdown site][df1]
-
-> The overriding design goal for Markdown's
-> formatting syntax is to make it as readable
-> as possible. The idea is that a
-> Markdown-formatted document should be
-> publishable as-is, as plain text, without
-> looking like it's been marked up with tags
-> or formatting instructions.
-
-This text you see here is *actually* written in Markdown! To get a feel for Markdown's syntax, type some text into the left window and watch the results in the right.
-
-### Tech
-
-Dillinger uses a number of open source projects to work properly:
-
-* [AngularJS] - HTML enhanced for web apps!
-* [Ace Editor] - awesome web-based text editor
-* [markdown-it] - Markdown parser done right. Fast and easy to extend.
-* [Twitter Bootstrap] - great UI boilerplate for modern web apps
-* [node.js] - evented I/O for the backend
-* [Express] - fast node.js network app framework [@tjholowaychuk]
-* [Gulp] - the streaming build system
-* [Breakdance](http://breakdance.io) - HTML to Markdown converter
-* [jQuery] - duh
-
-And of course Dillinger itself is open source with a [public repository][dill]
- on GitHub.
-
-### Installation
-
-Dillinger requires [Node.js](https://nodejs.org/) v4+ to run.
-
-Install the dependencies and devDependencies and start the server.
-
-```sh
-$ cd dillinger
-$ npm install -d
-$ node app
+---
+### 4. Laravel
+- Koneksi **_MySQL_**
+```php
+'mysql' => [
+            'driver' => 'mysql',
+            'host' => '192.168.33.10',
+            'port' => '6033',
+            'database' => 'airport',
+            'username' => 'apuser',
+            'password' => 'appwd',
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ],
 ```
+- Koneksi **_Redis_** menggunakan **_API_** dengan **_python_** dan **_flask_**
+```py
+from flask import Flask, request
+from json import dumps, loads
+from rediscluster import StrictRedisCluster
 
-For production environments...
+app = Flask(__name__)
 
-```sh
-$ npm install --production
-$ NODE_ENV=production node app
+nodes = [{"host": "192.168.33.21", "port": "6379"}, {"host": "192.168.33.22", "port": "6380"}, {"host": "192.168.33.23", "port": "6381"}]
+rc = StrictRedisCluster(startup_nodes=nodes, decode_responses=True)
+
+@app.route('/<date>', methods=['GET'])
+def getCargoByDate(date):
+	print ('Getting data from redis : Date ' + date + '...')
+	pattern = 'date:'+date+':*'
+	keys = rc.keys(pattern)
+	res = []
+	for key in keys:
+		val = rc.hgetall(key)
+		res.append(val)
+	response = app.response_class(response=dumps(res), status=200, mimetype='application/json')
+	return response
+
+@app.route('/<date>', methods=['POST'])
+def storeDate(date):
+	print('Caching redis : Date ' + date + '...')
+	data = request.get_json()[0]
+	data = loads(data)
+	for item in data:
+		pattern = 'date:'+date+':'+str(item['id'])
+		ins_data = {
+			'id' : item['id'],
+			'DataExtractDate' : item['DataExtractDate'],
+			'ReportPeriod' : item['ReportPeriod'],
+			'Arrival_Departure' : item['Arrival_Departure'],
+			'Domestic_International' : item['Domestic_International'],
+			'CargoType' : item['CargoType'],
+			'AirCargoTons' : item['AirCargoTons']
+		}
+		ins = rc.hmset(pattern, ins_data)
+	return dumps(data)
+
+@app.route('/arrival', methods=['GET'])
+def getArrival():
+	print('Getting data from redis... (Arrival)')
+	pattern = 'Arrival:*'
+	keys = rc.keys(pattern)
+	res = []
+	for key in keys:
+		val = rc.hgetall(key)
+		res.append(val)
+	response = app.response_class(response=dumps(res), status=200, mimetype='application/json')
+	return response
+
+@app.route('/storeArrival', methods=['POST'])
+def storeArrival():
+	print('Caching redis... (Arrival)')
+	data = request.get_json()[0]
+	data = loads(data)
+	for item in data:
+		pattern = 'Arrival:'+str(item['id'])
+		ins_data = {
+			'id' : item['id'],
+			'DataExtractDate' : item['DataExtractDate'],
+			'ReportPeriod' : item['ReportPeriod'],
+			'Arrival_Departure' : item['Arrival_Departure'],
+			'Domestic_International' : item['Domestic_International'],
+			'CargoType' : item['CargoType'],
+			'AirCargoTons' : item['AirCargoTons']
+		}
+		ins = rc.hmset(pattern, ins_data)
+	return dumps(data)
+
+@app.route('/departure', methods=['GET'])
+def getDeparture():
+	print('Getting data from redis... (Departure)')
+	pattern = 'Departure:*'
+	keys = rc.keys(pattern)
+	res = []
+	for key in keys:
+		val = rc.hgetall(key)
+		res.append(val)
+	response = app.response_class(response=dumps(res), status=200, mimetype='application/json')
+	return response
+
+@app.route('/storeDeparture', methods=['POST'])
+def storeDeparture():
+	print('Caching redis... (Departure)')
+	data = request.get_json()[0]
+	data = loads(data)
+	for item in data:
+		pattern = 'Departure:'+str(item['id'])
+		ins_data = {
+			'id' : item['id'],
+			'DataExtractDate' : item['DataExtractDate'],
+			'ReportPeriod' : item['ReportPeriod'],
+			'Arrival_Departure' : item['Arrival_Departure'],
+			'Domestic_International' : item['Domestic_International'],
+			'CargoType' : item['CargoType'],
+			'AirCargoTons' : item['AirCargoTons']
+		}
+		ins = rc.hmset(pattern, ins_data)
+	return dumps(data)
+
+@app.route('/flush', methods=['POST'])
+def flushCache():
+	print('Flush cache...')
+	rc.flushdb()
+	return dumps(True)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ```
+- Penggunaan cache pada **_cargoController.php_**
+```php
+public function arrival(){
+        $client = new Client();
+        $cargos = $client->get('localhost:5000/arrival')->getBody();
+        $cargos = json_decode($cargos);
 
-### Plugins
+        $currentPage = Paginator::resolveCurrentPage();
+        $perPage = 10;
 
-Dillinger is currently extended with the following plugins. Instructions on how to use them in your own application are linked below.
+        if($cargos){
+            $currentResults = array_slice($cargos, ($currentPage - 1) * $perPage, $perPage);
+            $cargos = new Paginator($currentResults, count($cargos), $perPage, $currentPage, ['path' => '/cargo']);
 
-| Plugin | README |
-| ------ | ------ |
-| Dropbox | [plugins/dropbox/README.md][PlDb] |
-| Github | [plugins/github/README.md][PlGh] |
-| Google Drive | [plugins/googledrive/README.md][PlGd] |
-| OneDrive | [plugins/onedrive/README.md][PlOd] |
-| Medium | [plugins/medium/README.md][PlMe] |
-| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
+            return view('cargo', compact('cargos'));
+        }
 
+        $cargos = DB::table('cargo')->where('Arrival_Departure', '=', 'Arrival')->get();
+        $result = $client->post('localhost:5000/storeArrival', [
+            'json' => [
+                $cargos->toJson()
+            ]
+        ]); 
 
-### Development
+        $currentResults = $cargos->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $cargos = new Paginator($currentResults, $cargos->count(), $perPage, $currentPage, ['path' => '/cargo']);
+        
+        return view('cargo', compact('cargos'));
+    }
 
-Want to contribute? Great!
+    public function departure(){
+        $client = new Client();
+        $cargos = $client->get('localhost:5000/departure')->getBody();
+        $cargos = json_decode($cargos);
 
-Dillinger uses Gulp + Webpack for fast developing.
-Make a change in your file and instantanously see your updates!
+        $currentPage = Paginator::resolveCurrentPage();
+        $perPage = 10;
 
-Open your favorite Terminal and run these commands.
+        if($cargos){
+            $currentResults = array_slice($cargos, ($currentPage - 1) * $perPage, $perPage);
+            $cargos = new Paginator($currentResults, count($cargos), $perPage, $currentPage, ['path' => '/cargo']);
 
-First Tab:
-```sh
-$ node app
+            return view('cargo', compact('cargos'));
+        }
+
+        $cargos = DB::table('cargo')->where('Arrival_Departure', '=', 'Departure')->get();
+        $result = $client->post('localhost:5000/storeDeparture', [
+            'json' => [
+                $cargos->toJson()
+            ]
+        ]); 
+
+        $currentResults = $cargos->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $cargos = new Paginator($currentResults, $cargos->count(), $perPage, $currentPage, ['path' => '/cargo']);
+        
+        return view('cargo', compact('cargos'));
+    }
+
+    public function date(Request $request){
+        echo $request->_token;
+        $client = new Client();
+        $cargos = $client->get('localhost:5000/'.$request->date)->getBody();
+        $cargos = json_decode($cargos);
+
+        $currentPage = Paginator::resolveCurrentPage();
+        $perPage = 10;
+
+        if($cargos){
+            $currentResults = array_slice($cargos, ($currentPage - 1) * $perPage, $perPage);
+            $cargos = new Paginator($currentResults, count($cargos), $perPage, $currentPage, ['path' => '/cargo']);
+
+            return view('cargo', compact('cargos'));
+        }
+
+        $cargos = DB::table('cargo')->where('DataExtractDate', '>=', date($request->date).' 00:00:00')->where('DataExtractDate', '<=', date($request->date).' 23:59:59')->get();
+        $result = $client->post('localhost:5000/'.$request->date, [
+            'json' => [
+                $cargos->toJson()
+            ]
+        ]); 
+
+        $currentResults = $cargos->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $cargos = new Paginator($currentResults, $cargos->count(), $perPage, $currentPage, ['path' => '/cargo']);
+        return view('cargo', compact('cargos'));
+    }
 ```
+- **_Crontab_** untuk menghapus cache secara berkala
+> php artisan make:command FlushCache
+- Dari command tersebut akan membuat suatu file pada **_app/Console/Commands/FlushCache_** dan ubah seperti berikut
+```php
+<?php
 
-Second Tab:
-```sh
-$ gulp watch
+namespace App\Console\Commands;
+
+use GuzzleHttp\Client;
+use Illuminate\Console\Command;
+
+class FlushCache extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'flush:cache';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Flush cache from redis';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        //
+        $client = new Client();
+        $client->post('localhost:5000/flush');
+
+        $this->info("Flush cache");
+    }
+}
 ```
+- Lalu register command tersebut pada kernel, **_app/Console/Kernel.php_** sehingga seperti berikut
+```php
+<?php
 
-(optional) Third:
-```sh
-$ karma test
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        //
+        Commands\FlushCache::class,  
+    ];
+
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // $schedule->command('inspire')
+        //          ->hourly();
+
+        $schedule->command('flush:cache')->everyMinute();
+    }
+
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
 ```
-#### Building for source
-For production release:
+- Mulai laravel scheduler
+> crontab -e
+- lalu letakan ini pada baris terakhir
 ```sh
-$ gulp build --prod
+* * * * * php /home/firza/Documents/fpbdt/laravel/artisan schedule:run >> /dev/null 2>&1
 ```
-Generating pre-built zip archives for distribution:
-```sh
-$ gulp build dist --prod
+---
+### 5. Testing
+- Test MySQL Cluster pada **_db1, db2, atau db3_** lakukan **_mysql -u root -padmin_**
+```sql
+SELECT * FROM performance_schema.replication_group_members;
 ```
-### Docker
-Dillinger is very easy to install and deploy in a Docker container.
-
-By default, the Docker will expose port 8080, so change this within the Dockerfile if necessary. When ready, simply use the Dockerfile to build the image.
-
-```sh
-cd dillinger
-docker build -t joemccann/dillinger:${package.json.version} .
+- Test Redis Cluster pada **_redis1, redis2, atau redis3_** lakukan **_redis-cli_**
+```redis
+info replication
 ```
-This will create the dillinger image and pull in the necessary dependencies. Be sure to swap out `${package.json.version}` with the actual version of Dillinger.
-
-Once done, run the Docker image and map the port to whatever you wish on your host. In this example, we simply map port 8000 of the host to port 8080 of the Docker (or whatever port was exposed in the Dockerfile):
-
-```sh
-docker run -d -p 8000:8080 --restart="always" <youruser>/dillinger:${package.json.version}
-```
-
-Verify the deployment by navigating to your server address in your preferred browser.
-
-```sh
-127.0.0.1:8000
-```
-
-#### Kubernetes + Google Cloud
-
-See [KUBERNETES.md](https://github.com/joemccann/dillinger/blob/master/KUBERNETES.md)
-
-
-### Todos
-
- - Write MORE Tests
- - Add Night Mode
-
-License
-----
-
-MIT
-
-
-**Free Software, Hell Yeah!**
-
-[//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
-
-
-   [dill]: <https://github.com/joemccann/dillinger>
-   [git-repo-url]: <https://github.com/joemccann/dillinger.git>
-   [john gruber]: <http://daringfireball.net>
-   [df1]: <http://daringfireball.net/projects/markdown/>
-   [markdown-it]: <https://github.com/markdown-it/markdown-it>
-   [Ace Editor]: <http://ace.ajax.org>
-   [node.js]: <http://nodejs.org>
-   [Twitter Bootstrap]: <http://twitter.github.com/bootstrap/>
-   [jQuery]: <http://jquery.com>
-   [@tjholowaychuk]: <http://twitter.com/tjholowaychuk>
-   [express]: <http://expressjs.com>
-   [AngularJS]: <http://angularjs.org>
-   [Gulp]: <http://gulpjs.com>
-
-   [PlDb]: <https://github.com/joemccann/dillinger/tree/master/plugins/dropbox/README.md>
-   [PlGh]: <https://github.com/joemccann/dillinger/tree/master/plugins/github/README.md>
-   [PlGd]: <https://github.com/joemccann/dillinger/tree/master/plugins/googledrive/README.md>
-   [PlOd]: <https://github.com/joemccann/dillinger/tree/master/plugins/onedrive/README.md>
-   [PlMe]: <https://github.com/joemccann/dillinger/tree/master/plugins/medium/README.md>
-   [PlGa]: <https://github.com/RahulHP/dillinger/blob/master/plugins/googleanalytics/README.md>
+- Test cache pada Redis coba reload page /cargo/arrival lalu lihat pada console API
+---
+### 6. Jmeter
+- Load test cache yang dilakukan adalah cache ketika mencari rekap cargo berdasarkan tanggal
+---
+### 7. Referensi
+- https://www.linode.com/docs/applications/big-data/how-to-install-and-configure-a-redis-cluster-on-ubuntu-1604/
+- https://www.digitalocean.com/community/tutorials/how-to-configure-mysql-group-replication-on-ubuntu-16-04
+- https://www.digitalocean.com/community/tutorials/how-to-use-proxysql-as-a-load-balancer-for-mysql-on-ubuntu-16-04
+- https://www.laravel.web.id/2017/07/07/membuat-pagination-secara-manual/
+- https://tutsforweb.com/how-to-set-up-task-scheduling-cron-job-in-laravel/
+- https://www.blazemeter.com/blog/how-get-started-jmeter-part-1-installation-test-plans
