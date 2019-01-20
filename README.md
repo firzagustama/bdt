@@ -10,6 +10,9 @@
 |4|VM Redis Cluster|Ubuntu 16.04|3 Node|512MB|
 |5|Aplikasi| Laravel 5.6| - | - |
 |6|API|Ubuntu 16.04|-|-|
+
+![Arsitektur](img/Architecture.PNG)
+
 ---
 ### 2. MySQL Cluster
 Setelah **_vagrant up_**, ssh ke proxy lalu
@@ -387,6 +390,9 @@ info replication
 ---
 ### 6. Jmeter
 - Load test cache yang dilakukan adalah cache ketika mencari rekap cargo berdasarkan tanggal
+- Pengujian dilakukan dengan menggunakan PC lain pada satu network lokal
+
+![Uji jmeter](img/Capture.PNG)
 ---
 ### 7. Referensi
 - https://www.linode.com/docs/applications/big-data/how-to-install-and-configure-a-redis-cluster-on-ubuntu-1604/
