@@ -397,8 +397,8 @@ info replication
 ![Uji jmeter](img/Capture.PNG)
 
 - Hasil load test menggunakan jmeter
-[Hasil jmeter tanpa menggunakan cache](jmeter/tanpa_cache_date.csv)
-[Hasil jmeter menggunakan cache](jmeter/dengan_cache_date.csv)
+- [Hasil jmeter tanpa menggunakan cache](jmeter/tanpa_cache_date.csv)
+- [Hasil jmeter menggunakan cache](jmeter/dengan_cache_date.csv)
 ---
 ### 7. Referensi
 - https://www.linode.com/docs/applications/big-data/how-to-install-and-configure-a-redis-cluster-on-ubuntu-1604/
