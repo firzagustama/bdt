@@ -34,32 +34,32 @@ START GROUP_REPLICATION;
 Setelah **_vagrant up_**
 - **_vagrant ssh redis1_**
 ```sh
-$ redis-server /vagrant/redis/cluster/nd1-master.conf > /dev/null 2>&1 &
-$ redis-server /vagrant/redis/cluster/nd1-slave.conf > /dev/null 2>&1 &
+redis-server /vagrant/redis/cluster/nd1-master.conf > /dev/null 2>&1 &
+redis-server /vagrant/redis/cluster/nd1-slave.conf > /dev/null 2>&1 &
 ```
 - **_vagrant ssh redis2_**
 ```sh
-$ redis-server /vagrant/redis/cluster/nd2-master.conf > /dev/null 2>&1 &
-$ redis-server /vagrant/redis/cluster/nd2-slave.conf > /dev/null 2>&1 &
+redis-server /vagrant/redis/cluster/nd2-master.conf > /dev/null 2>&1 &
+redis-server /vagrant/redis/cluster/nd2-slave.conf > /dev/null 2>&1 &
 ```
 - **_vagrant ssh redis3_**
 ```sh
-$ redis-server /vagrant/redis/cluster/nd3-master.conf > /dev/null 2>&1 &
-$ redis-server /vagrant/redis/cluster/nd3-slave.conf > /dev/null 2>&1 &
+redis-server /vagrant/redis/cluster/nd3-master.conf > /dev/null 2>&1 &
+redis-server /vagrant/redis/cluster/nd3-slave.conf > /dev/null 2>&1 &
 ```
 Setelah semua **_redis-server_** menyala
 - **_vagrant ssh redis1_**
 ```sh
-$ redis-cli --cluster create 192.168.33.21:6379 192.168.33.22:6380 192.168.33.23:6381
-$ redis-cli --cluster add-node 192.168.33.21:6381 192.168.33.23:6381 --cluster-slave
+redis-cli --cluster create 192.168.33.21:6379 192.168.33.22:6380 192.168.33.23:6381
+redis-cli --cluster add-node 192.168.33.21:6381 192.168.33.23:6381 --cluster-slave
 ```
 - **_vagrant ssh redis2_**
 ```sh
-$ redis-cli --cluster add-node 192.168.33.22:6379 192.168.33.21:6379 --cluster-slave
+redis-cli --cluster add-node 192.168.33.22:6379 192.168.33.21:6379 --cluster-slave
 ```
 - **_vagrant ssh redis3_**
 ```sh
-$ redis-cli --cluster add-node 192.168.33.23:6380 192.168.33.22:6380 --cluster-slave
+redis-cli --cluster add-node 192.168.33.23:6380 192.168.33.22:6380 --cluster-slave
 ```
 ---
 ### 4. Laravel
