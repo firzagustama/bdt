@@ -18,6 +18,17 @@ Setelah **_vagrant up_**, ssh ke proxy lalu
 ```sh
 $ mysql -u admin -padmin -h 127.0.0.1 -P 6032 < /vagrant/mysql/proxysql.sql
 ```
+Jika cluster mati maka lakukan step berikut
+- **_vagrant ssh db1_**
+```mysql
+SET GLOBAL GROUP_REPLICATION_BOOTSTRAP_GROUP=ON;
+START GROUP_REPLICATION;
+SET GLOBAL GROUP_REPLICATION_BOOTSTRAP_GROUP=OFF;
+```
+- **_vagrant ssh db2_** dan **_vagrant ssh db3_**
+```mysql
+START GROUP_REPLICATION;
+```
 ---
 ### 3. Redis Cluster
 Setelah **_vagrant up_**
