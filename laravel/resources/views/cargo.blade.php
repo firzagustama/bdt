@@ -6,7 +6,7 @@
 			<a href="{{action('cargoController@create')}}" class="btn btn-primary btn-lg pull-right">Add</a>
 		</div>
 	</div>
-    <table class="table table-hover">
+    <table class="table table-hover table-striped">
 	    <thead>
 	      <tr>
 	      	<th>Data Extract Date</th>
