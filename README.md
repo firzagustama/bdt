@@ -408,10 +408,18 @@ info replication
 ![Uji jmeter](img/Capture.PNG)
 
 - Hasil load test menggunakan jmeter
-- [Hasil jmeter tanpa menggunakan cache](jmeter/tanpa_cache_date.csv)
-- [Hasil jmeter menggunakan cache](jmeter/dengan_cache_date.csv)
+- [Hasil jmeter tanpa menggunakan cache pada arrival](jmeter/tanpa_cache_arrival.csv)
+- [Hasil jmeter menggunakan cache pada arrival](jmeter/dengan_cache_arrival.csv)
+- [Hasil jmeter tanpa menggunakan cache pada departure](jmeter/tanpa_cache_departure.csv)
+- [Hasil jmeter menggunakan cache pada departure](jmeter/dengan_cache_departure.csv)
+- [Hasil jmeter tanpa menggunakan cache untuk pencarian berdasarkan tanggal](jmeter/tanpa_cache_date.csv)
+- [Hasil jmeter menggunakan cache untuk pencarian berdasarkan tanggal](jmeter/dengan_cache_date.csv)
 ---
-### 7. Referensi
+### 7. Kesimpulan
+- Penggunaan cache sangat efisien ketika melakukan cache pada data yang sangat susah dicari atau perlu pencarian mendalam dan hasil yang didapatkan sedikit
+- API tidak dapat menerima banyak request seperti tanpa API
+---
+### 8. Referensi
 - https://www.linode.com/docs/applications/big-data/how-to-install-and-configure-a-redis-cluster-on-ubuntu-1604/
 - https://www.digitalocean.com/community/tutorials/how-to-configure-mysql-group-replication-on-ubuntu-16-04
 - https://www.digitalocean.com/community/tutorials/how-to-use-proxysql-as-a-load-balancer-for-mysql-on-ubuntu-16-04
